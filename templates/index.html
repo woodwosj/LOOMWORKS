@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 50%;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group textarea {
+            resize: vertical;
+        }
+        .btn-submit {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+        #bookGenerationResult {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+            display: none; /* Hide initially */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Book Generator Form</h2>
+        <form id="bookForm">
+            <div class="form-group">
+                <label for="fictionNonfiction">Fiction/Nonfiction:</label>
+                <select id="fictionNonfiction" name="fictionNonfiction">
+                    <option value="fiction">Fiction</option>
+                    <option value="nonfiction">Nonfiction</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="genre">Genre:</label>
+                <input type="text" id="genre" name="genre">
+            </div>
+            <div class="form-group">
+                <label for="plot">Plot:</label>
+                <textarea id="plot" name="plot" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="setting">Setting:</label>
+                <input type="text" id="setting" name="setting">
+            </div>
+            <div class="form-group">
+                <label for="themes">Themes:</label>
+                <input type="text" id="themes" name="themes">
+            </div>
+            <div class="form-group">
+                <label for="plotIdeas">Plot Ideas:</label>
+                <textarea id="plotIdeas" name="plotIdeas" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="chapterLength">Chapter Length:</label>
+                <input type="number" id="chapterLength" name="chapterLength" min="15" max="25">
+            </div>
+            <button type="button" class="btn-submit" onclick="submitForm()">Generate Book</button>
+        </form>
+        <!-- Result section -->
+        <div id="bookGenerationResult"></div>
+    </div>
+
+    <script>
+        function submitForm() {
+            var formData = {
+                fictionNonfiction: document.getElementById('fictionNonfiction').value,
+                genre: document.getElementById('genre').value,
+                plot: document.getElementById('plot').value,
+                setting: document.getElementById('setting').value,
+                themes: document.getElementById('themes').value,
+                plotIdeas: document.getElementById('plotIdeas').value,
+                chapterLength: document.getElementById('chapterLength').value
+            };
+
+            // AJAX request to Flask backend
+            fetch('/generate_book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Show the result section and update the content
+                var resultDiv = document.getElementById('bookGenerationResult');
+                resultDiv.style.display = 'block'; // Make the result section visible
+                resultDiv.textContent = data.message + (data.outline ? "\nOutline:\n" + data.outline : '');
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Show the result section and display the error
+                var resultDiv = document.getElementById('bookGenerationResult');
+                resultDiv.style.display = 'block'; // Make the result section visible
+                resultDiv.textContent = 'Failed to generate book: ' + error;
+            });
+        }
+    </script>
+</body>
+</html>
